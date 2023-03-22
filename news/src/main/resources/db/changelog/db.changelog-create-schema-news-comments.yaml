@@ -20,7 +20,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: text
-                  type: varchar(512)
+                  type: text
                   constraints:
                     nullable: false
               - column:
@@ -85,3 +85,11 @@ databaseChangeLog:
             minValue: 1
             startValue: 1
             sequenceName: comment_seq
+        - addDefaultValue:
+            columnName: news_id
+            defaultValueSequenceNext: news_seq
+            tableName: news
+        - addDefaultValue:
+            columnName: comment_id
+            defaultValueSequenceNext: comment_seq
+            tableName: comment

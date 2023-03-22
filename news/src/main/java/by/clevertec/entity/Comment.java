@@ -28,7 +28,6 @@ public class Comment extends DateTimeEntity implements Reaction, Serializable {
     @Column(name = "comment_id")
     private long id;
 
-    @Lob
     @Column
     private String text;
 

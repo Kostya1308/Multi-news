@@ -1,11 +1,10 @@
 package by.clevertec.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.OptimisticLockType;
-import org.hibernate.annotations.OptimisticLocking;
+import org.hibernate.annotations.*;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -34,7 +33,6 @@ public class News extends DateTimeEntity implements Content, Serializable {
     @Column
     private String title;
 
-    @Lob
     @Column
     private String text;
 
