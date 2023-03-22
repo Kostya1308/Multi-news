@@ -1,4 +1,33 @@
 spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/news-test
+    username: postgres
+    password: 6%Itrlfkp765
+  jpa:
+    generate-ddl: true
+    show-sql: true
+    properties:
+      hibernate:
+        naming:
+          physical-strategy: by.clevertec.configuration.CustomPhysicalNamingStrategy
+        format_sql: true
+        generate_statistics: true
+        jdbc:
+          batch_size: 4
+          order_inserts: true
+        dialect:
+          org:
+            hibernate:
+              dialect: PostgreSQLDialect
+---
+spring:
+  config:
+    activate:
+      on-profile: test
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/news
@@ -20,6 +49,5 @@ spring:
           org:
             hibernate:
               dialect: PostgreSQLDialect
-
 
 
