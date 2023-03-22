@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - logicalFilePath: db/changelog/db.changelog-create-schema-news-comments.yaml
+  - changeSet:
+      id: 1
+      author: constantine
+      changes:
+        - createTable:
+            tableName: news
+            columns:
+              - column:
+                  name: news_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_time_create
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_time_update
+                  type: timestamp
+        - createTable:
+            tableName: comment
+            columns:
+              - column:
+                  name: comment_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: text
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_time_create
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_time_update
+                  type: timestamp
+              - column:
+                  name: news_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: comment_id
+            baseTableName: comment
+            constraintName: fk_comment_news
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: news_id
+            referencedTableName: news
+        - createSequence:
+            dataType: BIGINT
+            incrementBy: 1
+            maxValue: 10000
+            minValue: 1
+            startValue: 1
+            sequenceName: news_seq
+        - createSequence:
+            dataType: BIGINT
+            incrementBy: 1
+            maxValue: 10000
+            minValue: 1
+            startValue: 1
+            sequenceName: comment_seq

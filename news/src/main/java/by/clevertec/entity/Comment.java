@@ -1,11 +1,8 @@
 package by.clevertec.entity;
 
-import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
 
@@ -26,7 +23,8 @@ public class Comment extends DateTimeEntity implements Reaction, Serializable {
     private static long serialVersionUID;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comment_generator")
+    @SequenceGenerator(name = "comment_generator", sequenceName = "comment_seq", allocationSize = 1)
     @Column(name = "comment_id")
     private long id;
 

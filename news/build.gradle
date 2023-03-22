@@ -31,10 +31,7 @@ dependencies {
 
     implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.5.3.Final'
 
-
-
-
-
+    implementation 'org.liquibase:liquibase-core:4.20.0'
 }
 
 test {

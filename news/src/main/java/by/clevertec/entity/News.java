@@ -26,7 +26,8 @@ public class News extends DateTimeEntity implements Content, Serializable {
     private static long serialVersionUID;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "news_generator")
+    @SequenceGenerator(name = "news_generator", sequenceName = "news_seq", allocationSize = 1)
     @Column(name = "news_id")
     private long id;
 
