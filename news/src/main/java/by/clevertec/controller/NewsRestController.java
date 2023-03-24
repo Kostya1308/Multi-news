@@ -7,6 +7,7 @@ import by.clevertec.mapper.NewsMapper;
 import by.clevertec.service.interfaces.NewsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
+@Slf4j
 @RestController
 @RequestMapping("/news")
 public class NewsRestController {
@@ -31,9 +32,19 @@ public class NewsRestController {
     NewsMapper newsMapper;
     @Autowired
     ObjectMapper objectMapper;
+    @RequestMapping(method = RequestMethod.GET, path = "/sss")
+    public ResponseEntity<String> home(){
+        log.info("info");
+        log.warn("warn");
+        log.debug("debug");
+        log.error("error");
+        return new ResponseEntity<>("asdasdasd", HttpStatus.OK);
+
+    }
 
     @PostMapping(value = "/add")
     public ResponseEntity<String> createNews(@RequestBody @Validated NewsDTO newsDTO, BindingResult bindingResult) {
+
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.toString(), HttpStatus.NOT_ACCEPTABLE);
         }
