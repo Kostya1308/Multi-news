@@ -22,6 +22,7 @@ spring:
       on-profile: dev
   liquibase:
     enabled: true
+    contexts: dev
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -33,6 +34,10 @@ spring:
   config:
     activate:
       on-profile: test
+  liquibase:
+    enabled: true
+    contexts: test
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/news-test
