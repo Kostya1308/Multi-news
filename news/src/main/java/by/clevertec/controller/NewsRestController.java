@@ -46,7 +46,7 @@ public class NewsRestController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<String> getNews(@PathVariable("id") Long id) {
         AtomicReference<ResponseEntity<String>> responseEntity = new AtomicReference<>();
-        Optional<News> news = newsService.findById(id);
+        Optional<News> news = newsService.getById(id);
 
         news.ifPresentOrElse(itemNews -> {
             try {
@@ -65,7 +65,7 @@ public class NewsRestController {
     public ResponseEntity<String> updateNews(@PathVariable("id") Long id, @RequestBody NewsDTO newNewsDTO) {
         AtomicReference<ResponseEntity<String>> responseEntity = new AtomicReference<>();
 
-        Optional<News> news = newsService.findById(id);
+        Optional<News> news = newsService.getById(id);
         news.ifPresentOrElse(itemNews -> {
                     try {
                         News updatedNews = newsMapper.updateFromDTO(itemNews, newNewsDTO);
@@ -95,7 +95,7 @@ public class NewsRestController {
              @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
-        Page<News> news = newsService.findAll(pageRequest);
+        Page<News> news = newsService.getAll(pageRequest);
         List<String> newsJsonList = getNewsJsonList(news);
 
         return new ResponseEntity<>(newsJsonList, HttpStatus.OK);
@@ -112,7 +112,7 @@ public class NewsRestController {
              @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
-        Page<News> news = newsService.findAllByTitleContainsPageable(title, pageRequest);
+        Page<News> news = newsService.getAllByTitleContainsPageable(title, pageRequest);
         List<String> newsJsonList = getNewsJsonList(news);
 
         return new ResponseEntity<>(newsJsonList, HttpStatus.OK);
@@ -131,9 +131,9 @@ public class NewsRestController {
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
         Page<News> news;
         if (less) {
-            news = newsService.findAllByDateTimeCreateLessThanPageable(LocalDateTime.parse(dateTime), pageRequest);
+            news = newsService.getAllByDateTimeCreateLessThanPageable(LocalDateTime.parse(dateTime), pageRequest);
         } else {
-            news = newsService.findAllByDateTimeCreateGreaterThanPageable(LocalDateTime.parse(dateTime), pageRequest);
+            news = newsService.getAllByDateTimeCreateGreaterThanPageable(LocalDateTime.parse(dateTime), pageRequest);
         }
 
         List<String> newsJsonList = getNewsJsonList(news);

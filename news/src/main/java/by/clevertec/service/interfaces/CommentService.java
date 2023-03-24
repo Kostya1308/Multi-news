@@ -3,26 +3,19 @@ package by.clevertec.service.interfaces;
 import by.clevertec.entity.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-public interface CommentService extends JpaRepository<Comment, Long> {
+public interface CommentService {
 
-    @Query("SELECT c FROM Comment c WHERE c.id =:id")
-    @EntityGraph("Comment.news")
-    Optional<Comment> findByIdWithNews(@Param("id") Long id);
+    Comment save(Comment comment);
 
-    @Query("SELECT c FROM Comment c WHERE c.news.id =:newsId")
-    @EntityGraph("Comment.news")
-    Page<Comment> findAllByNewsPageable(@Param("newsId") Long newsId, Pageable pageable);
+    void deleteById(Long id);
 
-    @Query("SELECT c FROM Comment c WHERE c.username =:username")
-    @EntityGraph("Comment.news")
-    Page<Comment> findAllByUsernameWithNewsPageable(@Param("username") String username, Pageable pageable);
+    Optional<Comment> getByIdWithNews(@Param("id") Long id);
+
+    Page<Comment> getAllByNewsPageable(@Param("newsId") Long newsId, Pageable pageable);
+
+    Page<Comment> getAllByUsernameWithNewsPageable(@Param("username") String username, Pageable pageable);
 }

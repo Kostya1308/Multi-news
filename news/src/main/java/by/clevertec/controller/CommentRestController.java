@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RestController
 @RequestMapping("/comment")
 public class CommentRestController {
-
     @Autowired
     CommentService commentService;
     @Autowired
@@ -43,7 +42,7 @@ public class CommentRestController {
             return new ResponseEntity<>(bindingResult.toString(), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        Optional<News> news = newsService.findById(newsId);
+        Optional<News> news = newsService.getById(newsId);
         Comment comment = commentMapper.fromDTO(commentDTO);
         news.ifPresent(comment::setNews);
 
@@ -55,7 +54,7 @@ public class CommentRestController {
     @Transactional
     public ResponseEntity<String> getComment(@PathVariable("commentId") Long commentId) {
         AtomicReference<ResponseEntity<String>> responseEntity = new AtomicReference<>();
-        Optional<Comment> comment = commentService.findByIdWithNews(commentId);
+        Optional<Comment> comment = commentService.getByIdWithNews(commentId);
 
         comment.ifPresentOrElse(itemComment -> {
             try {
@@ -75,7 +74,7 @@ public class CommentRestController {
     public ResponseEntity<String> updateComment(@PathVariable("id") Long id, @RequestBody CommentDTO newCommentDTO) {
         AtomicReference<ResponseEntity<String>> responseEntity = new AtomicReference<>();
 
-        Optional<Comment> comment = commentService.findByIdWithNews(id);
+        Optional<Comment> comment = commentService.getByIdWithNews(id);
         comment.ifPresentOrElse(itemComment -> {
                     try {
                         Comment updatedComment = commentMapper.updateFromDTO(itemComment, newCommentDTO);
@@ -108,7 +107,7 @@ public class CommentRestController {
              @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
-        Page<Comment> comments = commentService.findAllByNewsPageable(Long.valueOf(newsId), pageRequest);
+        Page<Comment> comments = commentService.getAllByNewsPageable(Long.valueOf(newsId), pageRequest);
         List<String> commentJsonList = getCommentJsonList(comments);
 
         return new ResponseEntity<>(commentJsonList, HttpStatus.OK);
@@ -124,7 +123,7 @@ public class CommentRestController {
              @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
-        Page<Comment> comments = commentService.findAllByUsernameWithNewsPageable(username, pageRequest);
+        Page<Comment> comments = commentService.getAllByUsernameWithNewsPageable(username, pageRequest);
         List<String> commentJsonList = getCommentJsonList(comments);
 
         return new ResponseEntity<>(commentJsonList, HttpStatus.OK);
