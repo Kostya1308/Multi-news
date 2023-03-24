@@ -34,8 +34,8 @@ public class CommentRestController {
     @Autowired
     ObjectMapper objectMapper;
 
-    @PostMapping(value = "/{newsId}/add")
-    public ResponseEntity<String> createComment(@PathVariable("newsId") Long newsId,
+    @PostMapping(value = "/add")
+    public ResponseEntity<String> createComment(@RequestParam("newsId") Long newsId,
                                                 @RequestBody @Validated CommentDTO commentDTO,
                                                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -97,7 +97,7 @@ public class CommentRestController {
         return new ResponseEntity<>(String.valueOf(id), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/by-news/{newsId}")
+    @GetMapping(value = "/news/{newsId}")
     @Transactional
     public ResponseEntity<List<String>> getCommentsByNewsId
             (@PathVariable("newsId") String newsId,
@@ -113,7 +113,7 @@ public class CommentRestController {
         return new ResponseEntity<>(commentJsonList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/by-username/{username}")
+    @GetMapping(value = "/username/{username}")
     @Transactional
     public ResponseEntity<List<String>> getCommentsByUsername
             (@PathVariable("username") String username,
