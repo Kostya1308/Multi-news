@@ -2,6 +2,7 @@ package by.clevertec.controller;
 
 import by.clevertec.dto.NewsDTO;
 import by.clevertec.entity.News;
+import by.clevertec.exception.NewsNotFoundException;
 import by.clevertec.mapper.NewsMapper;
 import by.clevertec.service.interfaces.NewsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -56,7 +57,9 @@ public class NewsRestController {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
-        }, () -> responseEntity.set(new ResponseEntity<>("News doesn't exist", HttpStatus.BAD_REQUEST)));
+        }, () -> {
+            throw new NewsNotFoundException("News doesn't exist");
+        });
 
         return responseEntity.get();
     }
@@ -67,16 +70,17 @@ public class NewsRestController {
 
         Optional<News> news = newsService.getById(id);
         news.ifPresentOrElse(itemNews -> {
-                    try {
-                        News updatedNews = newsMapper.updateFromDTO(itemNews, newNewsDTO);
-                        newsService.save(updatedNews);
-                        String newsJson = objectMapper.writeValueAsString(updatedNews);
-                        responseEntity.set(new ResponseEntity<>(newsJson, HttpStatus.OK));
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, () -> responseEntity.set(new ResponseEntity<>("News doesn't exist", HttpStatus.BAD_REQUEST))
-        );
+            try {
+                News updatedNews = newsMapper.updateFromDTO(itemNews, newNewsDTO);
+                newsService.save(updatedNews);
+                String newsJson = objectMapper.writeValueAsString(updatedNews);
+                responseEntity.set(new ResponseEntity<>(newsJson, HttpStatus.OK));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }, () -> {
+            throw new NewsNotFoundException("News doesn't exist");
+        });
 
         return responseEntity.get();
     }

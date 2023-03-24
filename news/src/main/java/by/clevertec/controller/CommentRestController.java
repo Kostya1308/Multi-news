@@ -3,6 +3,7 @@ package by.clevertec.controller;
 import by.clevertec.dto.CommentDTO;
 import by.clevertec.entity.Comment;
 import by.clevertec.entity.News;
+import by.clevertec.exception.CommentNotFoundException;
 import by.clevertec.mapper.CommentMapper;
 import by.clevertec.service.interfaces.CommentService;
 import by.clevertec.service.interfaces.NewsService;
@@ -48,7 +49,9 @@ public class CommentRestController {
             comment.setNews(newsItem);
             commentService.save(comment);
             responseEntity.set(new ResponseEntity<>(String.valueOf(comment.getId()), HttpStatus.CREATED));
-        }, () -> responseEntity.set(new ResponseEntity<>("News doesn't exist", HttpStatus.BAD_REQUEST)));
+        }, () -> {
+            throw new CommentNotFoundException("Comment doesn't exist");
+        });
 
         return responseEntity.get();
     }
@@ -67,7 +70,9 @@ public class CommentRestController {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
-        }, () -> responseEntity.set(new ResponseEntity<>("Comment doesn't exist", HttpStatus.BAD_REQUEST)));
+        }, () -> {
+            throw new CommentNotFoundException("Comment doesn't exist");
+        });
 
         return responseEntity.get();
     }
@@ -88,7 +93,9 @@ public class CommentRestController {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
-        }, () -> responseEntity.set(new ResponseEntity<>("Comment doesn't exist", HttpStatus.BAD_REQUEST)));
+        }, () -> {
+            throw new CommentNotFoundException("Comment doesn't exist");
+        });
 
         return responseEntity.get();
     }
