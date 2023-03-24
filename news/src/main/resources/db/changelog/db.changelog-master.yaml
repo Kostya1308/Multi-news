@@ -2,5 +2,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/db.changelog-create-schema-news-comments.yaml
   - include:
-      file: db/changelog/db.insert-values-dev-db.yml
+      file: db/changelog/db.insert-news-dev-db.yml
+  - include:
+      file: db/changelog/db.insert-comment-dev-db.yml
+
 

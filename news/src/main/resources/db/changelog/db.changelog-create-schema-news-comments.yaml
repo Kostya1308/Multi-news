@@ -42,7 +42,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: text
-                  type: varchar(50)
+                  type: text
                   constraints:
                     nullable: false
               - column:
@@ -64,13 +64,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - addForeignKeyConstraint:
-            baseColumnNames: comment_id
+            baseColumnNames: news_id
             baseTableName: comment
             constraintName: fk_comment_news
             onDelete: CASCADE
             onUpdate: RESTRICT
             referencedColumnNames: news_id
             referencedTableName: news
+            validate: true
         - createSequence:
             dataType: BIGINT
             incrementBy: 1
@@ -93,3 +94,13 @@ databaseChangeLog:
             columnName: comment_id
             defaultValueSequenceNext: comment_seq
             tableName: comment
+        -  addDefaultValue:
+            columnDataType: timestamp
+            columnName: date_time_create
+            defaultValueComputed: now()
+            tableName: news
+        -  addDefaultValue:
+             columnDataType: timestamp
+             columnName: date_time_create
+             defaultValueComputed: now()
+             tableName: comment

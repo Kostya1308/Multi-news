@@ -35,19 +35,22 @@ public class CommentRestController {
     ObjectMapper objectMapper;
 
     @PostMapping(value = "/add")
-    public ResponseEntity<String> createComment(@RequestParam("newsId") Long newsId,
-                                                @RequestBody @Validated CommentDTO commentDTO,
-                                                BindingResult bindingResult) {
+    public ResponseEntity<String> createComment(@RequestParam("newsId") Long newsId, @RequestBody @Validated CommentDTO commentDTO, BindingResult bindingResult) {
+        AtomicReference<ResponseEntity<String>> responseEntity = new AtomicReference<>();
+
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.toString(), HttpStatus.NOT_ACCEPTABLE);
         }
 
         Optional<News> news = newsService.getById(newsId);
-        Comment comment = commentMapper.fromDTO(commentDTO);
-        news.ifPresent(comment::setNews);
+        news.ifPresentOrElse(newsItem -> {
+            Comment comment = commentMapper.fromDTO(commentDTO);
+            comment.setNews(newsItem);
+            commentService.save(comment);
+            responseEntity.set(new ResponseEntity<>(String.valueOf(comment.getId()), HttpStatus.CREATED));
+        }, () -> responseEntity.set(new ResponseEntity<>("News doesn't exist", HttpStatus.BAD_REQUEST)));
 
-        Comment commentPersist = commentService.save(comment);
-        return new ResponseEntity<>(String.valueOf(commentPersist.getId()), HttpStatus.CREATED);
+        return responseEntity.get();
     }
 
     @GetMapping(value = "/{commentId}")
@@ -76,17 +79,16 @@ public class CommentRestController {
 
         Optional<Comment> comment = commentService.getByIdWithNews(id);
         comment.ifPresentOrElse(itemComment -> {
-                    try {
-                        Comment updatedComment = commentMapper.updateFromDTO(itemComment, newCommentDTO);
-                        updatedComment.setNews(itemComment.getNews());
-                        commentService.save(updatedComment);
-                        String commentJson = objectMapper.writeValueAsString(updatedComment);
-                        responseEntity.set(new ResponseEntity<>(commentJson, HttpStatus.OK));
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, () -> responseEntity.set(new ResponseEntity<>("Comment doesn't exist", HttpStatus.BAD_REQUEST))
-        );
+            try {
+                Comment updatedComment = commentMapper.updateFromDTO(itemComment, newCommentDTO);
+                updatedComment.setNews(itemComment.getNews());
+                commentService.save(updatedComment);
+                String commentJson = objectMapper.writeValueAsString(updatedComment);
+                responseEntity.set(new ResponseEntity<>(commentJson, HttpStatus.OK));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }, () -> responseEntity.set(new ResponseEntity<>("Comment doesn't exist", HttpStatus.BAD_REQUEST)));
 
         return responseEntity.get();
     }
@@ -99,12 +101,7 @@ public class CommentRestController {
 
     @GetMapping(value = "/news/{newsId}")
     @Transactional
-    public ResponseEntity<List<String>> getCommentsByNewsId
-            (@PathVariable("newsId") String newsId,
-             @RequestParam(name = "page", defaultValue = "0") String page,
-             @RequestParam(name = "size", defaultValue = "3") String size,
-             @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy,
-             @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
+    public ResponseEntity<List<String>> getCommentsByNewsId(@PathVariable("newsId") String newsId, @RequestParam(name = "page", defaultValue = "0") String page, @RequestParam(name = "size", defaultValue = "3") String size, @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy, @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
         Page<Comment> comments = commentService.getAllByNewsPageable(Long.valueOf(newsId), pageRequest);
@@ -115,12 +112,7 @@ public class CommentRestController {
 
     @GetMapping(value = "/username/{username}")
     @Transactional
-    public ResponseEntity<List<String>> getCommentsByUsername
-            (@PathVariable("username") String username,
-             @RequestParam(name = "page", defaultValue = "0") String page,
-             @RequestParam(name = "size", defaultValue = "3") String size,
-             @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy,
-             @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
+    public ResponseEntity<List<String>> getCommentsByUsername(@PathVariable("username") String username, @RequestParam(name = "page", defaultValue = "0") String page, @RequestParam(name = "size", defaultValue = "3") String size, @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy, @RequestParam(name = "sort-dir", defaultValue = "asc") String sortDir) {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
         Page<Comment> comments = commentService.getAllByUsernameWithNewsPageable(username, pageRequest);
