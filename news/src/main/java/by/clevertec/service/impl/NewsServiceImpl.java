@@ -29,6 +29,11 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    public Optional<News> getByIdWithComments(Long id) {
+        return newsRepository.findByIdWithComments(id);
+    }
+
+    @Override
     public void deleteById(Long id) {
         newsRepository.deleteById(id);
     }

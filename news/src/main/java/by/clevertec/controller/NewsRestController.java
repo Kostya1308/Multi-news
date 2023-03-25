@@ -1,12 +1,13 @@
 package by.clevertec.controller;
 
-import by.clevertec.dto.NewsDTO;
+import by.clevertec.dto.CommentDto;
+import by.clevertec.dto.NewsDto;
+import by.clevertec.entity.Comment;
 import by.clevertec.entity.News;
 import by.clevertec.exception.NewsNotFoundException;
+import by.clevertec.mapper.CommentMapper;
 import by.clevertec.mapper.NewsMapper;
 import by.clevertec.service.interfaces.NewsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+
 @Slf4j
 @RestController
 @RequestMapping("/news")
@@ -31,9 +34,10 @@ public class NewsRestController {
     @Autowired
     NewsMapper newsMapper;
     @Autowired
-    ObjectMapper objectMapper;
+    CommentMapper commentMapper;
+
     @RequestMapping(method = RequestMethod.GET, path = "/sss")
-    public ResponseEntity<String> home(){
+    public ResponseEntity<String> home() {
         log.info("info");
         log.warn("warn");
         log.debug("debug");
@@ -43,31 +47,44 @@ public class NewsRestController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<String> createNews(@RequestBody @Validated NewsDTO newsDTO, BindingResult bindingResult) {
+    public ResponseEntity<String> createNews(@RequestBody @Validated NewsDto newsDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.toString(), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        News news = newsMapper.fromDTO(newsDTO);
+        News news = newsMapper.fromDTO(newsDTO, new News());
         News persistNews = newsService.save(news);
 
         return new ResponseEntity<>(String.valueOf(persistNews.getId()), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<String> getNews(@PathVariable("id") Long id) {
-        AtomicReference<ResponseEntity<String>> responseEntity = new AtomicReference<>();
+    public ResponseEntity<NewsDto> getNews(@PathVariable("id") Long id) {
+        AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
         Optional<News> news = newsService.getById(id);
 
         news.ifPresentOrElse(itemNews -> {
-            try {
-                NewsDTO newsDTO = newsMapper.toDTO(itemNews);
-                String newsJson = objectMapper.writeValueAsString(newsDTO);
-                responseEntity.set(new ResponseEntity<>(newsJson, HttpStatus.OK));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            NewsDto newsDTO = newsMapper.toDTO(itemNews, new NewsDto());
+            responseEntity.set(new ResponseEntity<>(newsDTO, HttpStatus.OK));
+        }, () -> {
+            throw new NewsNotFoundException("News doesn't exist");
+        });
+
+        return responseEntity.get();
+    }
+
+    @GetMapping(value = "/{id}/comments")
+    public ResponseEntity<NewsDto> getNewsWithComments(@PathVariable("id") Long id) {
+        AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
+        Optional<News> news = newsService.getByIdWithComments(id);
+
+        news.ifPresentOrElse(itemNews -> {
+            NewsDto newsDTO = newsMapper.toDTO(itemNews, new NewsDto());
+            Set<Comment> comments = itemNews.getComments();
+            List<CommentDto> commentDtoList = getCommentDtoListFromCommentSet(comments);
+            newsDTO.setCommentDtoList(commentDtoList);
+            responseEntity.set(new ResponseEntity<>(newsDTO, HttpStatus.OK));
         }, () -> {
             throw new NewsNotFoundException("News doesn't exist");
         });
@@ -76,19 +93,15 @@ public class NewsRestController {
     }
 
     @PostMapping(value = "/update/{id}")
-    public ResponseEntity<String> updateNews(@PathVariable("id") Long id, @RequestBody NewsDTO newNewsDTO) {
-        AtomicReference<ResponseEntity<String>> responseEntity = new AtomicReference<>();
+    public ResponseEntity<NewsDto> updateNews(@PathVariable("id") Long id, @RequestBody NewsDto newNewsDTO) {
+        AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
 
         Optional<News> news = newsService.getById(id);
         news.ifPresentOrElse(itemNews -> {
-            try {
-                News updatedNews = newsMapper.updateFromDTO(itemNews, newNewsDTO);
-                newsService.save(updatedNews);
-                String newsJson = objectMapper.writeValueAsString(updatedNews);
-                responseEntity.set(new ResponseEntity<>(newsJson, HttpStatus.OK));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            News updatedNews = newsMapper.fromDTO(newNewsDTO, itemNews);
+            newsService.save(updatedNews);
+            NewsDto newsDtoUpdated = newsMapper.toDTO(updatedNews, newNewsDTO);
+            responseEntity.set(new ResponseEntity<>(newsDtoUpdated, HttpStatus.OK));
         }, () -> {
             throw new NewsNotFoundException("News doesn't exist");
         });
@@ -103,7 +116,7 @@ public class NewsRestController {
     }
 
     @GetMapping(value = "/all")
-    public ResponseEntity<List<String>> getAllNews
+    public ResponseEntity<List<NewsDto>> getAllNews
             (@RequestParam(name = "page", defaultValue = "0") String page,
              @RequestParam(name = "size", defaultValue = "3") String size,
              @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy,
@@ -111,15 +124,15 @@ public class NewsRestController {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
         Page<News> news = newsService.getAll(pageRequest);
-        List<String> newsJsonList = getNewsJsonList(news);
+        List<NewsDto> newsDtoList = getNewsDtoList(news);
 
-        return new ResponseEntity<>(newsJsonList, HttpStatus.OK);
+        return new ResponseEntity<>(newsDtoList, HttpStatus.OK);
     }
 
 
     @GetMapping(value = "/search-by-title")
     @Transactional
-    public ResponseEntity<List<String>> getAllNewsByTitle
+    public ResponseEntity<List<NewsDto>> getAllNewsByTitle
             (@RequestParam(name = "title") String title,
              @RequestParam(name = "page", defaultValue = "0") String page,
              @RequestParam(name = "size", defaultValue = "3") String size,
@@ -128,14 +141,14 @@ public class NewsRestController {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
         Page<News> news = newsService.getAllByTitleContainsPageable(title, pageRequest);
-        List<String> newsJsonList = getNewsJsonList(news);
+        List<NewsDto> newsDtoList = getNewsDtoList(news);
 
-        return new ResponseEntity<>(newsJsonList, HttpStatus.OK);
+        return new ResponseEntity<>(newsDtoList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/search-by-date-time")
     @Transactional
-    public ResponseEntity<List<String>> getAllNewsByDateTimeCreateLessThan
+    public ResponseEntity<List<NewsDto>> getAllNewsByDateTimeCreateLessThan
             (@RequestParam(name = "dateTime") String dateTime,
              @RequestParam("less") boolean less,
              @RequestParam(name = "page", defaultValue = "0") String page,
@@ -151,19 +164,20 @@ public class NewsRestController {
             news = newsService.getAllByDateTimeCreateGreaterThanPageable(LocalDateTime.parse(dateTime), pageRequest);
         }
 
-        List<String> newsJsonList = getNewsJsonList(news);
+        List<NewsDto> newsDtoList = getNewsDtoList(news);
 
-        return new ResponseEntity<>(newsJsonList, HttpStatus.OK);
+        return new ResponseEntity<>(newsDtoList, HttpStatus.OK);
     }
 
-    private List<String> getNewsJsonList(Page<News> news) {
-        return news.stream().map((item -> {
-            try {
-                NewsDTO newsDTO = newsMapper.toDTO(item);
-                return objectMapper.writeValueAsString(newsDTO);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        })).toList();
+    private List<NewsDto> getNewsDtoList(Page<News> news) {
+        return news.stream()
+                .map((item -> newsMapper.toDTO(item, new NewsDto())))
+                .toList();
+    }
+
+    private List<CommentDto> getCommentDtoListFromCommentSet(Set<Comment> comments) {
+        return comments.stream()
+                .map((item -> commentMapper.toDTO(item, new CommentDto())))
+                .toList();
     }
 }

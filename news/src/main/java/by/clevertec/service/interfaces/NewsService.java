@@ -13,6 +13,8 @@ public interface NewsService{
 
     Optional<News> getById(Long id);
 
+    Optional<News> getByIdWithComments(Long id);
+
     void deleteById(Long id);
 
     Page<News> getAll(Pageable pageable);

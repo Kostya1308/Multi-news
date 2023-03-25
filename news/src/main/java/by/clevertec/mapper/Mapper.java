@@ -1,6 +1,6 @@
 package by.clevertec.mapper;
 public interface Mapper<T, V> {
-    public V toDTO(T t);
+    V toDTO(T t, V v);
 
-    public T fromDTO(V v);
+    T fromDTO(V v, T t);
 }

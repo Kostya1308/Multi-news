@@ -5,16 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @Validated
-public class NewsDTO {
+public class CommentDto {
 
     private String id;
-    @NotNull(message = "Empty title field")
-    private String title;
     @NotNull(message = "Empty text field")
     private String text;
+    private String username;
+    private String newsId;
 }

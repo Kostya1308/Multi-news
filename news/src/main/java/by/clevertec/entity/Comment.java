@@ -1,6 +1,5 @@
 package by.clevertec.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OptimisticLockType;
@@ -37,7 +36,6 @@ public class Comment extends DateTimeEntity implements Reaction, Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "news_id")
     @ToString.Exclude
-    @JsonIgnore
     private News news;
 
 }
