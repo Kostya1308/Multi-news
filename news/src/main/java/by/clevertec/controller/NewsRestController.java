@@ -36,17 +36,7 @@ public class NewsRestController {
     @Autowired
     CommentMapper commentMapper;
 
-    @RequestMapping(method = RequestMethod.GET, path = "/sss")
-    public ResponseEntity<String> home() {
-        log.info("info");
-        log.warn("warn");
-        log.debug("debug");
-        log.error("error");
-        return new ResponseEntity<>("asdasdasd", HttpStatus.OK);
-
-    }
-
-    @PostMapping(value = "/add")
+    @RequestMapping(method = RequestMethod.POST, path = "/add")
     public ResponseEntity<String> createNews(@RequestBody @Validated NewsDto newsDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -59,7 +49,7 @@ public class NewsRestController {
         return new ResponseEntity<>(String.valueOf(persistNews.getId()), HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/{id}")
+    @RequestMapping(method = RequestMethod.GET, path = "/{id}")
     public ResponseEntity<NewsDto> getNews(@PathVariable("id") Long id) {
         AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
         Optional<News> news = newsService.getById(id);
@@ -74,7 +64,7 @@ public class NewsRestController {
         return responseEntity.get();
     }
 
-    @GetMapping(value = "/{id}/comments")
+    @RequestMapping(method = RequestMethod.GET, path = "/{id}/comments")
     public ResponseEntity<NewsDto> getNewsWithComments(@PathVariable("id") Long id) {
         AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
         Optional<News> news = newsService.getByIdWithComments(id);
@@ -92,7 +82,7 @@ public class NewsRestController {
         return responseEntity.get();
     }
 
-    @PostMapping(value = "/update/{id}")
+    @RequestMapping(method = RequestMethod.POST, path = "/update/{id}")
     public ResponseEntity<NewsDto> updateNews(@PathVariable("id") Long id, @RequestBody NewsDto newNewsDTO) {
         AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
 
@@ -109,13 +99,13 @@ public class NewsRestController {
         return responseEntity.get();
     }
 
-    @GetMapping(value = "delete/{id}")
+    @RequestMapping(method = RequestMethod.GET, path = "delete/{id}")
     public ResponseEntity<String> deleteNews(@PathVariable("id") Long id) {
         newsService.deleteById(id);
         return new ResponseEntity<>(String.valueOf(id), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/all")
+    @RequestMapping(method = RequestMethod.GET, path = "/all")
     public ResponseEntity<List<NewsDto>> getAllNews
             (@RequestParam(name = "page", defaultValue = "0") String page,
              @RequestParam(name = "size", defaultValue = "3") String size,
@@ -130,7 +120,7 @@ public class NewsRestController {
     }
 
 
-    @GetMapping(value = "/search-by-title")
+    @RequestMapping(method = RequestMethod.GET, path = "/search-by-title")
     @Transactional
     public ResponseEntity<List<NewsDto>> getAllNewsByTitle
             (@RequestParam(name = "title") String title,
@@ -146,7 +136,7 @@ public class NewsRestController {
         return new ResponseEntity<>(newsDtoList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/search-by-date-time")
+    @RequestMapping(method = RequestMethod.GET, path = "/search-by-date-time")
     @Transactional
     public ResponseEntity<List<NewsDto>> getAllNewsByDateTimeCreateLessThan
             (@RequestParam(name = "dateTime") String dateTime,

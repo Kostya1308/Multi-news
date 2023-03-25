@@ -40,3 +40,5 @@ logging:
     org.hibernate.sql: DEBUG
     root: WARN
     by.clevertec.aspect: INFO
+lrucache:
+  capacity: 100

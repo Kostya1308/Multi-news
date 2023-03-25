@@ -31,7 +31,7 @@ public class CommentRestController {
     @Autowired
     CommentMapper commentMapper;
 
-    @PostMapping(value = "/add")
+    @RequestMapping(method = RequestMethod.POST, path = "/add")
     public ResponseEntity<String> createComment(@RequestParam("newsId") Long newsId,
                                                 @RequestBody @Validated CommentDto commentDTO,
                                                 BindingResult bindingResult) {
@@ -54,7 +54,7 @@ public class CommentRestController {
         return responseEntity.get();
     }
 
-    @GetMapping(value = "/{commentId}")
+    @RequestMapping(method = RequestMethod.GET, path = "/{commentId}")
     @Transactional
     public ResponseEntity<CommentDto> getComment(@PathVariable("commentId") Long commentId) {
         AtomicReference<ResponseEntity<CommentDto>> responseEntity = new AtomicReference<>();
@@ -70,7 +70,7 @@ public class CommentRestController {
         return responseEntity.get();
     }
 
-    @PostMapping(value = "/update/{id}")
+    @RequestMapping(method = RequestMethod.POST, path = "/update/{id}")
     @Transactional
     public ResponseEntity<CommentDto> updateComment(@PathVariable("id") Long id, @RequestBody CommentDto newCommentDto) {
         AtomicReference<ResponseEntity<CommentDto>> responseEntity = new AtomicReference<>();
@@ -89,13 +89,13 @@ public class CommentRestController {
         return responseEntity.get();
     }
 
-    @GetMapping(value = "/delete/{id}")
+    @RequestMapping(method = RequestMethod.GET, path = "/delete/{id}")
     public ResponseEntity<String> deleteComment(@PathVariable("id") Long id) {
         commentService.deleteById(id);
         return new ResponseEntity<>(String.valueOf(id), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/news/{newsId}")
+    @RequestMapping(method = RequestMethod.GET, path = "/news/{newsId}")
     @Transactional
     public ResponseEntity<List<CommentDto>> getCommentsByNewsId(@PathVariable("newsId") String newsId,
                                                             @RequestParam(name = "page", defaultValue = "0") String page,
@@ -110,7 +110,7 @@ public class CommentRestController {
         return new ResponseEntity<>(commentDtoList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/username/{username}")
+    @RequestMapping(method = RequestMethod.GET, path = "/username/{username}")
     @Transactional
     public ResponseEntity<List<CommentDto>> getCommentsByUsername(@PathVariable("username") String username,
                                                               @RequestParam(name = "page", defaultValue = "0") String page,
