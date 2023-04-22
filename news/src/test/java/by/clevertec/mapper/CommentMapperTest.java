@@ -1,6 +1,6 @@
 package by.clevertec.mapper;
 
-import by.clevertec.dto.CommentDto;
+import by.clevertec.dto.CommentDTO;
 import by.clevertec.entity.Comment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,14 +16,14 @@ class CommentMapperTest {
         comment.setText("Java is awesome");
         comment.setUsername("Kostya");
 
-        CommentDto commentDto = commentMapper.toDTO(comment, new CommentDto());
+        CommentDTO commentDto = commentMapper.toDTO(comment, new CommentDTO());
 
         Assertions.assertEquals(String.valueOf(comment.getId()), commentDto.getId());
     }
 
     @Test
     void fromDTO() {
-        CommentDto commentDto = new CommentDto();
+        CommentDTO commentDto = new CommentDTO();
         commentDto.setText("Java is awesome");
         commentDto.setUsername("Kostya");
 

@@ -1,6 +1,6 @@
 package by.clevertec.mapper;
 
-import by.clevertec.dto.NewsDto;
+import by.clevertec.dto.NewsDTO;
 import by.clevertec.entity.News;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,13 +14,13 @@ class NewsMapperTest {
         news.setId(1L);
         news.setTitle("Java");
 
-        NewsDto newsDTO = newsMapper.toDTO(news, new NewsDto());
+        NewsDTO newsDTO = newsMapper.toDTO(news, new NewsDTO());
         Assertions.assertEquals(String.valueOf(news.getId()), newsDTO.getId());
     }
 
     @Test
     void fromDTO() {
-        NewsDto newsDTO = new NewsDto();
+        NewsDTO newsDTO = new NewsDTO();
         newsDTO.setId("1");
         newsDTO.setTitle("Java");
 

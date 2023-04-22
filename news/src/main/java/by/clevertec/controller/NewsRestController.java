@@ -1,7 +1,7 @@
 package by.clevertec.controller;
 
-import by.clevertec.dto.CommentDto;
-import by.clevertec.dto.NewsDto;
+import by.clevertec.dto.CommentDTO;
+import by.clevertec.dto.NewsDTO;
 import by.clevertec.entity.Comment;
 import by.clevertec.entity.News;
 import by.clevertec.exception.NewsNotFoundException;
@@ -36,8 +36,8 @@ public class NewsRestController {
     @Autowired
     CommentMapper commentMapper;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/add")
-    public ResponseEntity<String> createNews(@RequestBody @Validated NewsDto newsDTO, BindingResult bindingResult) {
+    @RequestMapping(method = RequestMethod.POST)
+    public ResponseEntity<String> createNews(@RequestBody @Validated NewsDTO newsDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.toString(), HttpStatus.NOT_ACCEPTABLE);
@@ -50,13 +50,13 @@ public class NewsRestController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/{id}")
-    public ResponseEntity<NewsDto> getNews(@PathVariable("id") Long id) {
-        AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
+    public ResponseEntity<NewsDTO> getNews(@PathVariable("id") Long id) {
+        AtomicReference<ResponseEntity<NewsDTO>> responseEntity = new AtomicReference<>();
         Optional<News> news = newsService.getById(id);
 
         news.ifPresentOrElse(itemNews -> {
-            NewsDto newsDTO = newsMapper.toDTO(itemNews, new NewsDto());
-            responseEntity.set(new ResponseEntity<>(newsDTO, HttpStatus.OK));
+            NewsDTO newsDTO = newsMapper.toDTO(itemNews, new NewsDTO());
+            responseEntity.set(ResponseEntity.ok(newsDTO));
         }, () -> {
             throw new NewsNotFoundException("News doesn't exist");
         });
@@ -65,15 +65,15 @@ public class NewsRestController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/{id}/comments")
-    public ResponseEntity<NewsDto> getNewsWithComments(@PathVariable("id") Long id) {
-        AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
+    public ResponseEntity<NewsDTO> getNewsWithComments(@PathVariable("id") Long id) {
+        AtomicReference<ResponseEntity<NewsDTO>> responseEntity = new AtomicReference<>();
         Optional<News> news = newsService.getByIdWithComments(id);
 
         news.ifPresentOrElse(itemNews -> {
-            NewsDto newsDTO = newsMapper.toDTO(itemNews, new NewsDto());
+            NewsDTO newsDTO = newsMapper.toDTO(itemNews, new NewsDTO());
             Set<Comment> comments = itemNews.getComments();
-            List<CommentDto> commentDtoList = getCommentDtoListFromCommentSet(comments);
-            newsDTO.setCommentDtoList(commentDtoList);
+            List<CommentDTO> commentDTOList = getCommentDtoListFromCommentSet(comments);
+            newsDTO.setCommentDTOList(commentDTOList);
             responseEntity.set(new ResponseEntity<>(newsDTO, HttpStatus.OK));
         }, () -> {
             throw new NewsNotFoundException("News doesn't exist");
@@ -82,16 +82,16 @@ public class NewsRestController {
         return responseEntity.get();
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = "/update/{id}")
-    public ResponseEntity<NewsDto> updateNews(@PathVariable("id") Long id, @RequestBody NewsDto newNewsDTO) {
-        AtomicReference<ResponseEntity<NewsDto>> responseEntity = new AtomicReference<>();
+    @RequestMapping(method = RequestMethod.PUT, path = "/{id}")
+    public ResponseEntity<NewsDTO> updateNews(@PathVariable("id") Long id, @RequestBody NewsDTO newNewsDTO) {
+        AtomicReference<ResponseEntity<NewsDTO>> responseEntity = new AtomicReference<>();
 
         Optional<News> news = newsService.getById(id);
         news.ifPresentOrElse(itemNews -> {
             News updatedNews = newsMapper.fromDTO(newNewsDTO, itemNews);
             newsService.save(updatedNews);
-            NewsDto newsDtoUpdated = newsMapper.toDTO(updatedNews, newNewsDTO);
-            responseEntity.set(new ResponseEntity<>(newsDtoUpdated, HttpStatus.OK));
+            NewsDTO newsDTOUpdated = newsMapper.toDTO(updatedNews, newNewsDTO);
+            responseEntity.set(new ResponseEntity<>(newsDTOUpdated, HttpStatus.OK));
         }, () -> {
             throw new NewsNotFoundException("News doesn't exist");
         });
@@ -99,14 +99,14 @@ public class NewsRestController {
         return responseEntity.get();
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "delete/{id}")
+    @RequestMapping(method = RequestMethod.DELETE, path = "/{id}")
     public ResponseEntity<String> deleteNews(@PathVariable("id") Long id) {
         newsService.deleteById(id);
-        return new ResponseEntity<>(String.valueOf(id), HttpStatus.OK);
+        return ResponseEntity.ok(String.valueOf(id));
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/all")
-    public ResponseEntity<List<NewsDto>> getAllNews
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<NewsDTO>> getAllNews
             (@RequestParam(name = "page", defaultValue = "0") String page,
              @RequestParam(name = "size", defaultValue = "3") String size,
              @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy,
@@ -114,15 +114,14 @@ public class NewsRestController {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
         Page<News> news = newsService.getAll(pageRequest);
-        List<NewsDto> newsDtoList = getNewsDtoList(news);
+        List<NewsDTO> newsDTOList = getNewsDtoList(news);
 
-        return new ResponseEntity<>(newsDtoList, HttpStatus.OK);
+        return ResponseEntity.ok(newsDTOList);
     }
-
 
     @RequestMapping(method = RequestMethod.GET, path = "/search-by-title")
     @Transactional
-    public ResponseEntity<List<NewsDto>> getAllNewsByTitle
+    public ResponseEntity<List<NewsDTO>> getAllNewsByTitle
             (@RequestParam(name = "title") String title,
              @RequestParam(name = "page", defaultValue = "0") String page,
              @RequestParam(name = "size", defaultValue = "3") String size,
@@ -131,14 +130,14 @@ public class NewsRestController {
 
         PageRequest pageRequest = ControllerUtil.getPageRequest(page, size, sortBy, sortDir);
         Page<News> news = newsService.getAllByTitleContainsPageable(title, pageRequest);
-        List<NewsDto> newsDtoList = getNewsDtoList(news);
+        List<NewsDTO> newsDTOList = getNewsDtoList(news);
 
-        return new ResponseEntity<>(newsDtoList, HttpStatus.OK);
+        return ResponseEntity.ok(newsDTOList);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/search-by-date-time")
     @Transactional
-    public ResponseEntity<List<NewsDto>> getAllNewsByDateTimeCreateLessThan
+    public ResponseEntity<List<NewsDTO>> getAllNewsByDateTimeCreateLessThan
             (@RequestParam(name = "dateTime") String dateTime,
              @RequestParam("less") boolean less,
              @RequestParam(name = "page", defaultValue = "0") String page,
@@ -154,20 +153,20 @@ public class NewsRestController {
             news = newsService.getAllByDateTimeCreateGreaterThanPageable(LocalDateTime.parse(dateTime), pageRequest);
         }
 
-        List<NewsDto> newsDtoList = getNewsDtoList(news);
+        List<NewsDTO> newsDTOList = getNewsDtoList(news);
 
-        return new ResponseEntity<>(newsDtoList, HttpStatus.OK);
+        return ResponseEntity.ok(newsDTOList);
     }
 
-    private List<NewsDto> getNewsDtoList(Page<News> news) {
+    private List<NewsDTO> getNewsDtoList(Page<News> news) {
         return news.stream()
-                .map((item -> newsMapper.toDTO(item, new NewsDto())))
+                .map((item -> newsMapper.toDTO(item, new NewsDTO())))
                 .toList();
     }
 
-    private List<CommentDto> getCommentDtoListFromCommentSet(Set<Comment> comments) {
+    private List<CommentDTO> getCommentDtoListFromCommentSet(Set<Comment> comments) {
         return comments.stream()
-                .map((item -> commentMapper.toDTO(item, new CommentDto())))
+                .map((item -> commentMapper.toDTO(item, new CommentDTO())))
                 .toList();
     }
 }

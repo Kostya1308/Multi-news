@@ -1,16 +1,16 @@
 package by.clevertec.mapper;
 
-import by.clevertec.dto.CommentDto;
+import by.clevertec.dto.CommentDTO;
 import by.clevertec.entity.Comment;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
-public class CommentMapper implements Mapper<Comment, CommentDto> {
+public class CommentMapper implements Mapper<Comment, CommentDTO> {
 
     @Override
-    public CommentDto toDTO(Comment comment, CommentDto commentDTO) {
+    public CommentDTO toDTO(Comment comment, CommentDTO commentDTO) {
         commentDTO.setId(String.valueOf(comment.getId()));
         commentDTO.setText(comment.getText());
         commentDTO.setUsername(comment.getUsername());
@@ -21,7 +21,7 @@ public class CommentMapper implements Mapper<Comment, CommentDto> {
     }
 
     @Override
-    public Comment fromDTO(CommentDto commentDTO, Comment comment) {
+    public Comment fromDTO(CommentDTO commentDTO, Comment comment) {
         Optional.ofNullable(commentDTO.getId())
                 .ifPresent(item -> comment.setId(Long.parseLong(item)));
         Optional.ofNullable(commentDTO.getUsername())

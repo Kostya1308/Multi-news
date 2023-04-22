@@ -1,16 +1,16 @@
 package by.clevertec.mapper;
 
-import by.clevertec.dto.NewsDto;
+import by.clevertec.dto.NewsDTO;
 import by.clevertec.entity.News;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
-public class NewsMapper implements Mapper<News, NewsDto> {
+public class NewsMapper implements Mapper<News, NewsDTO> {
 
     @Override
-    public NewsDto toDTO(News news, NewsDto newsDTO) {
+    public NewsDTO toDTO(News news, NewsDTO newsDTO) {
         newsDTO.setId(String.valueOf(news.getId()));
         newsDTO.setTitle(news.getTitle());
         newsDTO.setText(news.getText());
@@ -19,7 +19,7 @@ public class NewsMapper implements Mapper<News, NewsDto> {
     }
 
     @Override
-    public News fromDTO(NewsDto newsDTO, News news) {
+    public News fromDTO(NewsDTO newsDTO, News news) {
         Optional.ofNullable(newsDTO.getId())
                 .ifPresent(item -> news.setId(Long.parseLong(item)));
         Optional.ofNullable(newsDTO.getTitle())

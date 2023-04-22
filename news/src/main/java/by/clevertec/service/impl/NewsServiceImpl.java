@@ -1,6 +1,6 @@
 package by.clevertec.service.impl;
 
-import by.clevertec.cache.LRUCache;
+import by.clevertec.cache.Cache;
 import by.clevertec.entity.News;
 import by.clevertec.repository.NewsRepository;
 import by.clevertec.service.interfaces.NewsService;
@@ -15,28 +15,28 @@ import java.util.Optional;
 public class NewsServiceImpl implements NewsService {
 
     NewsRepository newsRepository;
-    LRUCache<Long, News> lruCache;
+    Cache<Long, News> cache;
 
-    public NewsServiceImpl(NewsRepository newsRepository, LRUCache<Long, News> lruCache) {
+    public NewsServiceImpl(NewsRepository newsRepository, Cache<Long, News> cache) {
         this.newsRepository = newsRepository;
-        this.lruCache = lruCache;
+        this.cache = cache;
     }
 
     @Override
     public News save(News news) {
         News persistNews = newsRepository.save(news);
-        lruCache.put(persistNews.getId(), persistNews);
+        cache.put(persistNews.getId(), persistNews);
 
         return persistNews;
     }
 
     @Override
     public Optional<News> getById(Long id) {
-        Optional<News> news = lruCache.get(id);
+        Optional<News> news = cache.get(id);
 
         if (news.isEmpty()) {
             news = newsRepository.findById(id);
-            news.ifPresent(itemNews -> lruCache.put(itemNews.getId(), itemNews));
+            news.ifPresent(itemNews -> cache.put(itemNews.getId(), itemNews));
         }
 
         return news;
@@ -44,11 +44,11 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public Optional<News> getByIdWithComments(Long id) {
-        Optional<News> news = lruCache.get(id);
+        Optional<News> news = cache.get(id);
 
         if (news.isEmpty() || news.get().getComments() == null) {
             news = newsRepository.findByIdWithComments(id);
-            news.ifPresent(itemNews -> lruCache.put(itemNews.getId(), itemNews));
+            news.ifPresent(itemNews -> cache.put(itemNews.getId(), itemNews));
         }
 
         return news;
@@ -57,7 +57,7 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public void deleteById(Long id) {
         newsRepository.deleteById(id);
-        lruCache.remove(id);
+        cache.remove(id);
     }
 
     @Override
