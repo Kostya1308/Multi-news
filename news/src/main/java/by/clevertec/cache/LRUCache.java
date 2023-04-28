@@ -9,9 +9,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-@Component
+@Component("lru")
 public class LRUCache<K, V> implements Cache<K, V> {
-    @Value("${lrucache.capacity}")
+
+    @Value("${cache.lru.capacity}")
     private Integer capacity;
     private final Map<K, V> data;
     private final LinkedList<K> order;

@@ -4,6 +4,9 @@ import by.clevertec.cache.Cache;
 import by.clevertec.entity.News;
 import by.clevertec.repository.NewsRepository;
 import by.clevertec.service.interfaces.NewsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,12 +17,19 @@ import java.util.Optional;
 @Service
 public class NewsServiceImpl implements NewsService {
 
-    NewsRepository newsRepository;
-    Cache<Long, News> cache;
+    @Value("${cache.type.name}")
+    private String cacheName;
+    private Cache<Long, News> cache;
+    private final NewsRepository newsRepository;
 
-    public NewsServiceImpl(NewsRepository newsRepository, Cache<Long, News> cache) {
+
+    public NewsServiceImpl(NewsRepository newsRepository) {
         this.newsRepository = newsRepository;
-        this.cache = cache;
+    }
+
+    @Autowired
+    public void setCache(ApplicationContext context) {
+        this.cache = (Cache<Long, News>) context.getBean(cacheName);
     }
 
     @Override

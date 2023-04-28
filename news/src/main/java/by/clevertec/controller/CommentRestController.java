@@ -1,5 +1,6 @@
 package by.clevertec.controller;
 
+import by.clevertec.aspect.LogRequestResponse;
 import by.clevertec.dto.CommentDTO;
 import by.clevertec.entity.Comment;
 import by.clevertec.entity.News;
@@ -18,11 +19,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 public class CommentRestController {
     @Autowired
     CommentService commentService;
@@ -31,7 +31,8 @@ public class CommentRestController {
     @Autowired
     CommentMapper commentMapper;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/add")
+    @RequestMapping(method = RequestMethod.POST)
+    @LogRequestResponse
     public ResponseEntity<String> createComment(@RequestParam("newsId") Long newsId,
                                                 @RequestBody @Validated CommentDTO commentDTO,
                                                 BindingResult bindingResult) {
@@ -41,63 +42,53 @@ public class CommentRestController {
             return new ResponseEntity<>(bindingResult.toString(), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        Optional<News> news = newsService.getById(newsId);
-        news.ifPresentOrElse(newsItem -> {
-            Comment comment = commentMapper.fromDTO(commentDTO, new Comment());
-            comment.setNews(newsItem);
-            commentService.save(comment);
-            responseEntity.set(new ResponseEntity<>(String.valueOf(comment.getId()), HttpStatus.CREATED));
-        }, () -> {
-            throw new CommentNotFoundException("Comment doesn't exist");
-        });
-
-        return responseEntity.get();
+        News news = newsService.getById(newsId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment doesn't exist"));
+        Comment comment = commentMapper.fromDTO(commentDTO, new Comment());
+        comment.setNews(news);
+        commentService.save(comment);
+        return new ResponseEntity<>(String.valueOf(comment.getId()), HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/{commentId}")
     @Transactional
+    @LogRequestResponse
     public ResponseEntity<CommentDTO> getComment(@PathVariable("commentId") Long commentId) {
-        AtomicReference<ResponseEntity<CommentDTO>> responseEntity = new AtomicReference<>();
-        Optional<Comment> comment = commentService.getByIdWithNews(commentId);
 
-        comment.ifPresentOrElse(itemComment -> {
-            CommentDTO commentDTO = commentMapper.toDTO(itemComment, new CommentDTO());
-            responseEntity.set(new ResponseEntity<>(commentDTO, HttpStatus.OK));
-        }, () -> {
-            throw new CommentNotFoundException("Comment doesn't exist");
-        });
+        Comment comment = commentService.getByIdWithNews(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment doesn't exist"));
+        CommentDTO commentDTO = commentMapper.toDTO(comment, new CommentDTO());
 
-        return responseEntity.get();
+        return ResponseEntity.ok(commentDTO);
+
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = "/update/{id}")
+    @RequestMapping(method = RequestMethod.PUT, path = "/{id}")
     @Transactional
+    @LogRequestResponse
     public ResponseEntity<CommentDTO> updateComment(@PathVariable("id") Long id, @RequestBody CommentDTO newCommentDTO) {
-        AtomicReference<ResponseEntity<CommentDTO>> responseEntity = new AtomicReference<>();
 
-        Optional<Comment> comment = commentService.getByIdWithNews(id);
-        comment.ifPresentOrElse(itemComment -> {
-            Comment updatedComment = commentMapper.fromDTO(newCommentDTO, itemComment);
-            updatedComment.setNews(itemComment.getNews());
-            commentService.save(updatedComment);
-            CommentDTO commentDTOUpdated = commentMapper.toDTO(updatedComment, new CommentDTO());
-            responseEntity.set(new ResponseEntity<>(commentDTOUpdated, HttpStatus.OK));
-        }, () -> {
-            throw new CommentNotFoundException("Comment doesn't exist");
-        });
+        Comment comment = commentService.getByIdWithNews(id)
+                .orElseThrow(() -> new CommentNotFoundException("Comment doesn't exist"));
+        Comment updatedComment = commentMapper.fromDTO(newCommentDTO, comment);
+        updatedComment.setNews(comment.getNews());
+        commentService.save(updatedComment);
+        CommentDTO commentDTOUpdated = commentMapper.toDTO(updatedComment, new CommentDTO());
 
-        return responseEntity.get();
+        return new ResponseEntity<>(commentDTOUpdated, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/delete/{id}")
+    @RequestMapping(method = RequestMethod.DELETE, path = "/{id}")
+    @LogRequestResponse
     public ResponseEntity<String> deleteComment(@PathVariable("id") Long id) {
         commentService.deleteById(id);
         return new ResponseEntity<>(String.valueOf(id), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/news/{newsId}")
+    @RequestMapping(method = RequestMethod.GET, path = "/news")
     @Transactional
-    public ResponseEntity<List<CommentDTO>> getCommentsByNewsId(@PathVariable("newsId") String newsId,
+    @LogRequestResponse
+    public ResponseEntity<List<CommentDTO>> getCommentsByNewsId(@RequestParam("newsId") String newsId,
                                                                 @RequestParam(name = "page", defaultValue = "0") String page,
                                                                 @RequestParam(name = "size", defaultValue = "3") String size,
                                                                 @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy,
@@ -110,9 +101,10 @@ public class CommentRestController {
         return new ResponseEntity<>(commentDTOList, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/username/{username}")
+    @RequestMapping(method = RequestMethod.GET, path = "/username")
     @Transactional
-    public ResponseEntity<List<CommentDTO>> getCommentsByUsername(@PathVariable("username") String username,
+    @LogRequestResponse
+    public ResponseEntity<List<CommentDTO>> getCommentsByUsername(@RequestParam("username") String username,
                                                                   @RequestParam(name = "page", defaultValue = "0") String page,
                                                                   @RequestParam(name = "size", defaultValue = "3") String size,
                                                                   @RequestParam(name = "sort-by", defaultValue = "dateTimeCreate") String sortBy,

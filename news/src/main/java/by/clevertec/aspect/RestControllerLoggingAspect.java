@@ -22,7 +22,7 @@ public class RestControllerLoggingAspect {
     /**
      * Defines pointcut
      */
-    @Pointcut("within(by.clevertec.controller..*) && @annotation(org.springframework.web.bind.annotation.RequestMapping)")
+    @Pointcut("@annotation(LogRequestResponse)")
     public void pointcut() {
     }
 

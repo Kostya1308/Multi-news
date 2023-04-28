@@ -43,5 +43,10 @@ logging:
     org.hibernate: WARN
     root: ERROR
     by.clevertec.aspect: INFO
-lrucache:
-  capacity: 100
+cache:
+  type:
+    name: lru
+  lru:
+    capacity: 100
+  lfu:
+    capacity: 100

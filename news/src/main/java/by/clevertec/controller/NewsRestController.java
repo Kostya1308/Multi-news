@@ -1,5 +1,6 @@
 package by.clevertec.controller;
 
+import by.clevertec.aspect.LogRequestResponse;
 import by.clevertec.dto.CommentDTO;
 import by.clevertec.dto.NewsDTO;
 import by.clevertec.entity.Comment;
@@ -8,7 +9,6 @@ import by.clevertec.exception.NewsNotFoundException;
 import by.clevertec.mapper.CommentMapper;
 import by.clevertec.mapper.NewsMapper;
 import by.clevertec.service.interfaces.NewsService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,11 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
-@Slf4j
 @RestController
 @RequestMapping("/news")
 public class NewsRestController {
@@ -37,6 +34,7 @@ public class NewsRestController {
     CommentMapper commentMapper;
 
     @RequestMapping(method = RequestMethod.POST)
+    @LogRequestResponse
     public ResponseEntity<String> createNews(@RequestBody @Validated NewsDTO newsDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -50,62 +48,51 @@ public class NewsRestController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/{id}")
+    @LogRequestResponse
     public ResponseEntity<NewsDTO> getNews(@PathVariable("id") Long id) {
-        AtomicReference<ResponseEntity<NewsDTO>> responseEntity = new AtomicReference<>();
-        Optional<News> news = newsService.getById(id);
 
-        news.ifPresentOrElse(itemNews -> {
-            NewsDTO newsDTO = newsMapper.toDTO(itemNews, new NewsDTO());
-            responseEntity.set(ResponseEntity.ok(newsDTO));
-        }, () -> {
-            throw new NewsNotFoundException("News doesn't exist");
-        });
+        News news = newsService.getById(id)
+                .orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
+        NewsDTO newsDTO = newsMapper.toDTO(news, new NewsDTO());
 
-        return responseEntity.get();
+        return ResponseEntity.ok(newsDTO);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/{id}/comments")
+    @LogRequestResponse
     public ResponseEntity<NewsDTO> getNewsWithComments(@PathVariable("id") Long id) {
-        AtomicReference<ResponseEntity<NewsDTO>> responseEntity = new AtomicReference<>();
-        Optional<News> news = newsService.getByIdWithComments(id);
 
-        news.ifPresentOrElse(itemNews -> {
-            NewsDTO newsDTO = newsMapper.toDTO(itemNews, new NewsDTO());
-            Set<Comment> comments = itemNews.getComments();
-            List<CommentDTO> commentDTOList = getCommentDtoListFromCommentSet(comments);
-            newsDTO.setCommentDTOList(commentDTOList);
-            responseEntity.set(new ResponseEntity<>(newsDTO, HttpStatus.OK));
-        }, () -> {
-            throw new NewsNotFoundException("News doesn't exist");
-        });
+        News news = newsService.getById(id)
+                .orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
 
-        return responseEntity.get();
+        NewsDTO newsDTO = newsMapper.toDTO(news, new NewsDTO());
+        Set<Comment> comments = news.getComments();
+        List<CommentDTO> commentDTOList = getCommentDtoListFromCommentSet(comments);
+        newsDTO.setCommentDTOList(commentDTOList);
+        return ResponseEntity.ok(newsDTO);
     }
 
     @RequestMapping(method = RequestMethod.PUT, path = "/{id}")
+    @LogRequestResponse
     public ResponseEntity<NewsDTO> updateNews(@PathVariable("id") Long id, @RequestBody NewsDTO newNewsDTO) {
-        AtomicReference<ResponseEntity<NewsDTO>> responseEntity = new AtomicReference<>();
 
-        Optional<News> news = newsService.getById(id);
-        news.ifPresentOrElse(itemNews -> {
-            News updatedNews = newsMapper.fromDTO(newNewsDTO, itemNews);
-            newsService.save(updatedNews);
-            NewsDTO newsDTOUpdated = newsMapper.toDTO(updatedNews, newNewsDTO);
-            responseEntity.set(new ResponseEntity<>(newsDTOUpdated, HttpStatus.OK));
-        }, () -> {
-            throw new NewsNotFoundException("News doesn't exist");
-        });
+        News news = newsService.getById(id).orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
+        News updatedNews = newsMapper.fromDTO(newNewsDTO, news);
+        newsService.save(updatedNews);
+        NewsDTO newsDTOUpdated = newsMapper.toDTO(updatedNews, newNewsDTO);
 
-        return responseEntity.get();
+        return ResponseEntity.ok(newsDTOUpdated);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "/{id}")
+    @LogRequestResponse
     public ResponseEntity<String> deleteNews(@PathVariable("id") Long id) {
         newsService.deleteById(id);
         return ResponseEntity.ok(String.valueOf(id));
     }
 
     @RequestMapping(method = RequestMethod.GET)
+    @LogRequestResponse
     public ResponseEntity<List<NewsDTO>> getAllNews
             (@RequestParam(name = "page", defaultValue = "0") String page,
              @RequestParam(name = "size", defaultValue = "3") String size,
@@ -119,8 +106,10 @@ public class NewsRestController {
         return ResponseEntity.ok(newsDTOList);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/search-by-title")
+
+    @RequestMapping(method = RequestMethod.GET, path = "/title")
     @Transactional
+    @LogRequestResponse
     public ResponseEntity<List<NewsDTO>> getAllNewsByTitle
             (@RequestParam(name = "title") String title,
              @RequestParam(name = "page", defaultValue = "0") String page,
@@ -135,8 +124,9 @@ public class NewsRestController {
         return ResponseEntity.ok(newsDTOList);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/search-by-date-time")
+    @RequestMapping(method = RequestMethod.GET, path = "/date-time")
     @Transactional
+    @LogRequestResponse
     public ResponseEntity<List<NewsDTO>> getAllNewsByDateTimeCreateLessThan
             (@RequestParam(name = "dateTime") String dateTime,
              @RequestParam("less") boolean less,
@@ -154,7 +144,6 @@ public class NewsRestController {
         }
 
         List<NewsDTO> newsDTOList = getNewsDtoList(news);
-
         return ResponseEntity.ok(newsDTOList);
     }
 
