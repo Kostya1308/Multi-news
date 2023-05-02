@@ -1,10 +1,12 @@
 package by.clevertec.service.impl;
 
 import by.clevertec.cache.Cache;
+import by.clevertec.cache.LRUCache;
 import by.clevertec.entity.News;
 import by.clevertec.repository.NewsRepository;
 import by.clevertec.service.interfaces.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
@@ -17,19 +19,13 @@ import java.util.Optional;
 @Service
 public class NewsServiceImpl implements NewsService {
 
-    @Value("${cache.type.name}")
-    private String cacheName;
-    private Cache<Long, News> cache;
+    private final Cache<Long, News> cache;
     private final NewsRepository newsRepository;
 
-
-    public NewsServiceImpl(NewsRepository newsRepository) {
-        this.newsRepository = newsRepository;
-    }
-
     @Autowired
-    public void setCache(ApplicationContext context) {
-        this.cache = (Cache<Long, News>) context.getBean(cacheName);
+    public NewsServiceImpl(@Qualifier("lru")Cache<Long, News> cache, NewsRepository newsRepository) {
+        this.cache = cache;
+        this.newsRepository = newsRepository;
     }
 
     @Override

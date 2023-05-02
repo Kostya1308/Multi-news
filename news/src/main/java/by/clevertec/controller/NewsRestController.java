@@ -127,7 +127,7 @@ public class NewsRestController {
     @RequestMapping(method = RequestMethod.GET, path = "/date-time")
     @Transactional
     @LogRequestResponse
-    public ResponseEntity<List<NewsDTO>> getAllNewsByDateTimeCreateLessThan
+    public ResponseEntity<List<NewsDTO>> getAllNewsByDateTime
             (@RequestParam(name = "dateTime") String dateTime,
              @RequestParam("less") boolean less,
              @RequestParam(name = "page", defaultValue = "0") String page,

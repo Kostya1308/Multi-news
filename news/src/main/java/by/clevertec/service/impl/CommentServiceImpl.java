@@ -1,10 +1,12 @@
 package by.clevertec.service.impl;
 
 import by.clevertec.cache.Cache;
+import by.clevertec.cache.LRUCache;
 import by.clevertec.entity.Comment;
 import by.clevertec.repository.CommentRepository;
 import by.clevertec.service.interfaces.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
@@ -17,19 +19,13 @@ import java.util.Optional;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-    private Cache<Long, Comment> cache;
-    @Value("${cache.type.name}")
-    private String cacheName;
-
-    public CommentServiceImpl(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
-    }
+    private final Cache<Long, Comment> cache;
 
     @Autowired
-    public void setCache(ApplicationContext context) {
-        this.cache = (Cache<Long, Comment>) context.getBean(cacheName);
+    public CommentServiceImpl(CommentRepository commentRepository, @Qualifier("lru") Cache<Long, Comment> cache) {
+        this.commentRepository = commentRepository;
+        this.cache = cache;
     }
-
 
     @Override
     public Comment save(Comment comment) {
