@@ -5,7 +5,6 @@ import by.clevertec.entity.Comment;
 import by.clevertec.repository.CommentRepository;
 import by.clevertec.service.interfaces.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,7 @@ public class CommentServiceImpl implements CommentService {
     private final Cache<Long, Comment> cache;
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, @Qualifier("lru") Cache<Long, Comment> cache) {
+    public CommentServiceImpl(CommentRepository commentRepository, Cache<Long, Comment> cache) {
         this.commentRepository = commentRepository;
         this.cache = cache;
     }

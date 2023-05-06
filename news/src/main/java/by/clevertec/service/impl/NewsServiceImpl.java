@@ -5,7 +5,6 @@ import by.clevertec.entity.News;
 import by.clevertec.repository.NewsRepository;
 import by.clevertec.service.interfaces.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class NewsServiceImpl implements NewsService {
     private final NewsRepository newsRepository;
 
     @Autowired
-    public NewsServiceImpl(@Qualifier("lru")Cache<Long, News> cache, NewsRepository newsRepository) {
+    public NewsServiceImpl(Cache<Long, News> cache, NewsRepository newsRepository) {
         this.cache = cache;
         this.newsRepository = newsRepository;
     }

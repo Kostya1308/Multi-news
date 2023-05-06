@@ -1,10 +1,12 @@
 package by.clevertec.cache;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-@Component("lfu")
+@Component
+@ConditionalOnProperty(value = "cache.type", havingValue = "lfu")
 public class LFUCache<K, V> implements Cache<K, V> {
 
     @Value("${cache.lfu.capacity}")

@@ -1,6 +1,7 @@
 package by.clevertec.cache;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -9,7 +10,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-@Component("lru")
+@Component
+@ConditionalOnProperty(value = "cache.type", havingValue = "lru")
 public class LRUCache<K, V> implements Cache<K, V> {
 
     @Value("${cache.lru.capacity}")
