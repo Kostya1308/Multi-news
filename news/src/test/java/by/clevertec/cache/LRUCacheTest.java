@@ -1,6 +1,5 @@
 package by.clevertec.cache;
 
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,11 +48,15 @@ class LRUCacheTest {
     }
 
     @Test
-    @DisplayName("After putting one item to a full cache, least recently used element removes from the cache")
-    void given_FullCache_when_PutOneElement_then_LeastRecentlyUsedElementIsNull() {
+    @DisplayName("After putting one item to the full cache, least recently used element removes from the cache")
+    void given_FullCache_when_PutOneElement_then_LeastRecentlyUsedElementIsNullAndCacheSizeIsEqualsToCapacity() {
         fillToCapacity();
         cache.put(4, "AnotherElement");
-        assertTrue(cache.get(1).isEmpty());
+
+        assertAll(
+                () -> assertTrue(cache.get(1).isEmpty()),
+                () -> assertEquals(capacity, cache.size())
+        );
     }
 
     @Test
