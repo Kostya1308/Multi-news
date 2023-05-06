@@ -14,15 +14,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @ConditionalOnProperty(value = "cache.type", havingValue = "lru")
 public class LRUCache<K, V> implements Cache<K, V> {
 
-    @Value("${cache.lru.capacity}")
-    private Integer capacity;
+    private final Integer capacity;
     private final Map<K, V> data;
     private final LinkedList<K> order;
     private final ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
 
-    public LRUCache() {
-        this.data = new ConcurrentHashMap<>();
-        this.order = new LinkedList<>();
+    public LRUCache(@Value("${cache.capacity}") Integer capacity) {
+        if (capacity > 0){
+            this.capacity = capacity;
+            this.data = new ConcurrentHashMap<>();
+            this.order = new LinkedList<>();
+        } else {
+            throw new IllegalArgumentException("The cache capacity must be greater than 0");
+        }
+
     }
 
     @Override
@@ -69,8 +74,8 @@ public class LRUCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public int capacity() {
-        return this.capacity;
+    public int size() {
+        return data.size();
     }
 
     @Override

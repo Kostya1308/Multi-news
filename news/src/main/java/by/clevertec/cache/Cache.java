@@ -9,7 +9,7 @@ public interface Cache<K, V> {
 
     void remove(K key);
 
-    int capacity();
+    int size();
 
     boolean isEmpty();
 

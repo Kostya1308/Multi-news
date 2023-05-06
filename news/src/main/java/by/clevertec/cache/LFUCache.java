@@ -5,23 +5,29 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+
 @Component
 @ConditionalOnProperty(value = "cache.type", havingValue = "lfu")
 public class LFUCache<K, V> implements Cache<K, V> {
 
-    @Value("${cache.lfu.capacity}")
-    private Integer capacity;
-    private Integer min;
+
+    private final Integer capacity;
     private final Map<K, V> data;
     private final Map<K, Integer> counts;
     private final Map<Integer, LinkedHashSet<K>> lists;
+    private Integer min;
 
-    public LFUCache() {
-        this.data = new HashMap<>();
-        this.counts = new HashMap<>();
-        this.lists = new HashMap<>();
-        this.lists.put(1, new LinkedHashSet<>());
-        this.min = -1;
+    public LFUCache(@Value("${cache.capacity}") Integer capacity) {
+        if (capacity > 0) {
+            this.capacity = capacity;
+            this.data = new HashMap<>();
+            this.counts = new HashMap<>();
+            this.lists = new HashMap<>();
+            this.lists.put(1, new LinkedHashSet<>());
+            this.min = -1;
+        } else {
+            throw new IllegalArgumentException("The cache capacity must be greater than 0");
+        }
     }
 
     @Override
@@ -79,8 +85,8 @@ public class LFUCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public int capacity() {
-        return this.capacity;
+    public int size() {
+        return data.size();
     }
 
     @Override

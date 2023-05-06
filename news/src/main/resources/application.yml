@@ -44,8 +44,5 @@ logging:
     root: ERROR
     by.clevertec.aspect: INFO
 cache:
-  type: lfu
-  lru:
-    capacity: 100
-  lfu:
-    capacity: 100
+  type: lru
+  capacity: 100
