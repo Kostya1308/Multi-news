@@ -1,3 +1,2 @@
-rootProject.name = 'Multi-news'
-include 'news'
-
+rootProject.name = 'multi-news'
+includeBuild('news')
