@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/news-test
     username: postgres
-    password: root
+    password: 6%Itrlfkp765
   jpa:
     generate-ddl: false
     show-sql: true
@@ -32,7 +32,7 @@ spring:
       enabled: ALWAYS
 logging:
   file:
-    name: logs_test.log
+    name: news/logs_test.log
     max-size: 10MB
   level:
     org.springframework.web: DEBUG

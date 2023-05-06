@@ -36,7 +36,7 @@ spring:
       enabled: ALWAYS
 logging:
   file:
-    name: logs_dev.log
+    name: news/logs_dev.log
     max-size: 10MB
   level:
     org.springframework.web: WARN
