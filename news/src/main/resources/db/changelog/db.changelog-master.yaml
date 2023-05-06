@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/db.changelog-create-schema-news-comments.yaml
+  - include:
+      file: db/changelog/db.insert-news-comments-dev-db.yml
+  - include:
+      file: db/changelog/db.insert-news-comments-test-db.yml

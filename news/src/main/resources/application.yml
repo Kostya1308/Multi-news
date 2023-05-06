@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: news
+  server:
+    port: 8080
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    properties:
+      hibernate:
+        naming:
+          physical-strategy: by.clevertec.configuration.CustomPhysicalNamingStrategy
+        format_sql: true
+        generate_statistics: true
+        jdbc:
+          batch_size: 4
+          order_inserts: true
+        dialect:
+          org:
+            hibernate:
+              dialect: PostgreSQLDialect
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/news-dev
+    username: postgres
+    password: 6%Itrlfkp765
+  liquibase:
+    enabled: true
+    contexts: dev
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  output:
+    ansi:
+      enabled: ALWAYS
+logging:
+  file:
+    name: logs_dev.log
+    max-size: 10MB
+  level:
+    org.springframework.web: WARN
+    org.hibernate: WARN
+    root: ERROR
+    by.clevertec.aspect: INFO
+cache:
+  type:
+    name: lru
+  lru:
+    capacity: 100
+  lfu:
+    capacity: 100
