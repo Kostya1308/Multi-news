@@ -14,7 +14,11 @@ repositories {
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.1'
+    // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-runner
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.9.3'
+    // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite-api
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-suite-api', version: '1.9.3'
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '3.0.4'
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '3.0.4'
@@ -32,6 +36,11 @@ dependencies {
     implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.5.3.Final'
 
     implementation 'org.liquibase:liquibase-core:4.20.0'
+
+    // https://mvnrepository.com/artifact/org.testcontainers/postgresql
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.18.0'
+    // https://mvnrepository.com/artifact/org.testcontainers/junit-jupiter
+    testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.18.0'
 }
 
 test {

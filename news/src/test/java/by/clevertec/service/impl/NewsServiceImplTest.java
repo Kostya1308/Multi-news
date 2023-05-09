@@ -21,6 +21,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("Tests of the NewsServiceImpl")
 class NewsServiceImplTest {
     @Mock
     NewsRepository newsRepository;
@@ -38,6 +39,7 @@ class NewsServiceImplTest {
                 .text("text")
                 .comments(Set.of())
                 .build();
+
         pageable = PageRequest.of(1, 10);
     }
 

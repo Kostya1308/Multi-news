@@ -53,7 +53,7 @@ public class NewsRestController {
 
         News news = newsService.getById(id)
                 .orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
-        NewsDTO newsDTO = newsMapper.toDTO(news, new NewsDTO());
+        NewsDTO newsDTO = newsMapper.toDTO(news, NewsDTO.builder().build());
 
         return ResponseEntity.ok(newsDTO);
     }
@@ -65,7 +65,7 @@ public class NewsRestController {
         News news = newsService.getById(id)
                 .orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
 
-        NewsDTO newsDTO = newsMapper.toDTO(news, new NewsDTO());
+        NewsDTO newsDTO = newsMapper.toDTO(news, NewsDTO.builder().build());
         Set<Comment> comments = news.getComments();
         List<CommentDTO> commentDTOList = getCommentDtoListFromCommentSet(comments);
         newsDTO.setCommentDTOList(commentDTOList);
@@ -74,7 +74,12 @@ public class NewsRestController {
 
     @RequestMapping(method = RequestMethod.PUT, path = "/{id}")
     @LogRequestResponse
-    public ResponseEntity<NewsDTO> updateNews(@PathVariable("id") Long id, @RequestBody NewsDTO newNewsDTO) {
+    public ResponseEntity<NewsDTO> updateNews(@PathVariable("id") Long id, @RequestBody @Validated NewsDTO newNewsDTO,
+                                              BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.status(406).build();
+        }
 
         News news = newsService.getById(id).orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
         News updatedNews = newsMapper.fromDTO(newNewsDTO, news);
@@ -87,6 +92,7 @@ public class NewsRestController {
     @RequestMapping(method = RequestMethod.DELETE, path = "/{id}")
     @LogRequestResponse
     public ResponseEntity<String> deleteNews(@PathVariable("id") Long id) {
+        newsService.getById(id).orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
         newsService.deleteById(id);
         return ResponseEntity.ok(String.valueOf(id));
     }
@@ -149,7 +155,7 @@ public class NewsRestController {
 
     private List<NewsDTO> getNewsDtoList(Page<News> news) {
         return news.stream()
-                .map((item -> newsMapper.toDTO(item, new NewsDTO())))
+                .map((item -> newsMapper.toDTO(item, NewsDTO.builder().build())))
                 .toList();
     }
 

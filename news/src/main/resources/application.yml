@@ -46,3 +46,51 @@ logging:
 cache:
   type: lru
   capacity: 100
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  server:
+    port: 8080
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/news-test
+    username: postgres
+    password: 6%Itrlfkp765
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    properties:
+      hibernate:
+        naming:
+          physical-strategy: by.clevertec.configuration.CustomPhysicalNamingStrategy
+        format_sql: true
+        generate_statistics: true
+        jdbc:
+          batch_size: 4
+          order_inserts: true
+        dialect:
+          org:
+            hibernate:
+              dialect: PostgreSQLDialect
+  liquibase:
+    enabled: true
+    contexts: test
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  output:
+    ansi:
+      enabled: ALWAYS
+logging:
+  file:
+    name: news/logs_test.log
+    max-size: 10MB
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate.stat: INFO
+    org.hibernate.sql: DEBUG
+    root: WARN
+    by.clevertec.aspect: INFO
+cache:
+  type: lru
+  capacity: 100

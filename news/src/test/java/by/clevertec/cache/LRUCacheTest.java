@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Tests of the LRUCache")
 class LRUCacheTest {
     private Integer capacity;
     private Cache<Integer, String> cache;
@@ -11,7 +12,6 @@ class LRUCacheTest {
     private final String firstElement = "firstElement";
     private final String secondElement = "secondElement";
     private final String thirdElement = "thirdElement";
-
 
     @BeforeEach
     void setUp() {

@@ -8,7 +8,7 @@ public class ApplicationRunner {
     public static void main(String[] args) {
 
         SpringApplication springApplication = new SpringApplication(ApplicationRunner.class);
-        springApplication.setAdditionalProfiles("dev");
+        springApplication.setAdditionalProfiles("test");
         springApplication.run(args);
     }
 }

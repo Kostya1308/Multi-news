@@ -1,6 +1,8 @@
 package by.clevertec.dto;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
@@ -9,7 +11,9 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @Validated
+@EqualsAndHashCode
 public class NewsDTO {
 
     private String id;
