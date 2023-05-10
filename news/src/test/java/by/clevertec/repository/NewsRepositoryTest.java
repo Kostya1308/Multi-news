@@ -48,11 +48,11 @@ class NewsRepositoryTest {
                 .build();
     }
 
-    private static final DockerImageName POSTGRESQL_IMAGE_NAME = DockerImageName.parse("postgres:15.2-alpine");
+    private static final DockerImageName POSTGRE_SQL_IMAGE_NAME = DockerImageName.parse("postgres:15.2-alpine");
 
     @Container
-    private static PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>(POSTGRESQL_IMAGE_NAME)
+    private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER =
+            new PostgreSQLContainer<>(POSTGRE_SQL_IMAGE_NAME)
                     .withDatabaseName("news-test")
                     .withUsername("postgres")
                     .withPassword("root")
@@ -60,9 +60,9 @@ class NewsRepositoryTest {
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+        registry.add("spring.datasource.url", POSTGRE_SQL_CONTAINER::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRE_SQL_CONTAINER::getUsername);
+        registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
     }
 
     @Test
