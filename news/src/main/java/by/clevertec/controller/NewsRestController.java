@@ -33,7 +33,7 @@ public class NewsRestController {
     @Autowired
     CommentMapper commentMapper;
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     @LogRequestResponse
     public ResponseEntity<String> createNews(@RequestBody @Validated NewsDTO newsDTO, BindingResult bindingResult) {
 
@@ -47,7 +47,7 @@ public class NewsRestController {
         return new ResponseEntity<>(String.valueOf(persistNews.getId()), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/{id}")
+    @GetMapping(path = "/{id}")
     @LogRequestResponse
     public ResponseEntity<NewsDTO> getNews(@PathVariable("id") Long id) {
 
@@ -58,7 +58,7 @@ public class NewsRestController {
         return ResponseEntity.ok(newsDTO);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/{id}/comments")
+    @GetMapping(path = "/{id}/comments")
     @LogRequestResponse
     public ResponseEntity<NewsDTO> getNewsWithComments(@PathVariable("id") Long id) {
 
@@ -72,7 +72,7 @@ public class NewsRestController {
         return ResponseEntity.ok(newsDTO);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = "/{id}")
+    @PutMapping(path = "/{id}")
     @LogRequestResponse
     public ResponseEntity<NewsDTO> updateNews(@PathVariable("id") Long id, @RequestBody @Validated NewsDTO newNewsDTO,
                                               BindingResult bindingResult) {
@@ -89,7 +89,7 @@ public class NewsRestController {
         return ResponseEntity.ok(newsDTOUpdated);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, path = "/{id}")
+    @DeleteMapping(path = "/{id}")
     @LogRequestResponse
     public ResponseEntity<String> deleteNews(@PathVariable("id") Long id) {
         newsService.getById(id).orElseThrow(() -> new NewsNotFoundException("News doesn't exist"));
@@ -97,7 +97,7 @@ public class NewsRestController {
         return ResponseEntity.ok(String.valueOf(id));
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     @LogRequestResponse
     public ResponseEntity<List<NewsDTO>> getAllNews
             (@RequestParam(name = "page", defaultValue = "0") String page,
@@ -113,7 +113,7 @@ public class NewsRestController {
     }
 
 
-    @RequestMapping(method = RequestMethod.GET, path = "/title")
+    @GetMapping(path = "/title")
     @Transactional
     @LogRequestResponse
     public ResponseEntity<List<NewsDTO>> getAllNewsByTitle
@@ -130,7 +130,7 @@ public class NewsRestController {
         return ResponseEntity.ok(newsDTOList);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/date-time")
+    @GetMapping(path = "/date-time")
     @Transactional
     @LogRequestResponse
     public ResponseEntity<List<NewsDTO>> getAllNewsByDateTime

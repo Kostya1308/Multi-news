@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  app:
+    image: 'news:latest'
+    ports:
+      - "8080:8080"
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/news-test
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+
+  db:
+    image: 'postgres'
+    container_name: db
+    environment:
+      - POSTGRES_DB=news-test
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
