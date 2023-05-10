@@ -32,17 +32,17 @@ class LRUCacheTest {
     }
 
     @Test
-    @DisplayName("After putting one item to an empty cache, its capacity is increased by 1")
+    @DisplayName("After putting one item to an empty cache, its size is increased by 1")
     void given_EmptyCache_when_PutOneElement_then_ElementIsAddedAndCacheSizeIncreasesByOne() {
         int key = 1;
-        int capacityBeforePut = cache.size();
+        int sizeBeforePut = cache.size();
 
         cache.put(key, firstElement);
-        int capacityAfterPut = cache.size();
+        int sizeAfterPut = cache.size();
 
         assertAll(
                 () -> assertFalse(cache.isEmpty()),
-                () -> assertEquals(capacityBeforePut + 1, capacityAfterPut),
+                () -> assertEquals(sizeBeforePut + 1, sizeAfterPut),
                 () -> assertNotNull(cache.get(key))
         );
     }
@@ -73,18 +73,18 @@ class LRUCacheTest {
     }
 
     @Test
-    @DisplayName("After removing one item from the full cache, its capacity is decreases by 1")
+    @DisplayName("After removing one item from the full cache, its size is decreases by 1")
     void given_FullCache_when_RemoveOneElement_then_ElementIsRemovedAndCacheSizeDecreasesByOne() {
         int key = 1;
         fillToCapacity();
-        int capacityBeforeRemove = cache.size();
+        int sizeBeforeRemove = cache.size();
 
         cache.remove(key);
-        int capacityAfterRemove = cache.size();
+        int sizeAfterRemove = cache.size();
 
         assertAll(
                 () -> assertTrue(cache.get(key).isEmpty()),
-                () -> assertEquals(capacityBeforeRemove - 1, capacityAfterRemove)
+                () -> assertEquals(sizeBeforeRemove - 1, sizeAfterRemove)
         );
     }
 

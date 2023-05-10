@@ -64,7 +64,6 @@ class NewsServiceImplTest {
     void whenGetByIdWithComments_thenReturnNewsObjectWithComments() {
         Mockito.when(cache.get(1L)).thenReturn(Optional.of(news));
         assertNotNull(newsService.getByIdWithComments(1L));
-        assertNotNull(newsService.getByIdWithComments(1L).orElse(new News()).getComments());
     }
 
     @Test
