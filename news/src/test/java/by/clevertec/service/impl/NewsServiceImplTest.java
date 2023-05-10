@@ -79,7 +79,6 @@ class NewsServiceImplTest {
     @DisplayName("After getting all by title should return page object")
     void whenGetAllByTitleContainsPageable_thenReturnPageObject() {
         Mockito.when(newsRepository.findAllByTitleContainsPageable("Title", pageable)).thenReturn(Page.empty());
-
         assertNotNull(newsService.getAllByTitleContainsPageable("Title", pageable));
     }
 }

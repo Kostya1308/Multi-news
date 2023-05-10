@@ -55,6 +55,7 @@ class LRUCacheTest {
 
         assertAll(
                 () -> assertTrue(cache.get(1).isEmpty()),
+                () -> assertTrue(cache.get(4).isPresent()),
                 () -> assertEquals(capacity, cache.size())
         );
     }
