@@ -25,8 +25,8 @@ class LRUCacheTest {
     }
 
     @Test
-    @DisplayName("If the cache capacity is less than 0, then throws IllegalArgumentException")
-    void given_CapacityLessThanZero_when_BuildCache_then_ThrowIllegalArgumentException() {
+    @DisplayName("If the cache capacity is less than 1, then throws IllegalArgumentException")
+    void given_CapacityLessThanOne_when_BuildCache_then_ThrowIllegalArgumentException() {
         capacity = 0;
         assertThrows(IllegalArgumentException.class, () -> cache = new LRUCache<>(capacity));
     }
