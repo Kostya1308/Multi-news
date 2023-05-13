@@ -1,8 +1,8 @@
+server:
+  port: 8080
 spring:
   application:
     name: news
-  server:
-    port: 8080
   config:
     activate:
       on-profile: dev
@@ -37,22 +37,24 @@ spring:
 logging:
   file:
     name: news/logs_dev.log
-    max-size: 10MB
   level:
     org.springframework.web: WARN
     org.hibernate: WARN
     root: ERROR
     by.clevertec.aspect: INFO
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
 cache:
   type: lru
   capacity: 100
 ---
+server:
+  port: 8080
 spring:
   config:
     activate:
       on-profile: test
-  server:
-    port: 8080
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/news-test
@@ -84,13 +86,15 @@ spring:
 logging:
   file:
     name: news/logs_test.log
-    max-size: 10MB
   level:
     org.springframework.web: DEBUG
     org.hibernate.stat: INFO
     org.hibernate.sql: DEBUG
     root: WARN
     by.clevertec.aspect: INFO
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
 cache:
   type: lru
   capacity: 100
